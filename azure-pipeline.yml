@@ -5,7 +5,7 @@ pool:
   name: LocalPool
 
 variables:
-  projectDir: ''
+  projectDir: '/'
   system.debug: 'true'
 
 steps:
