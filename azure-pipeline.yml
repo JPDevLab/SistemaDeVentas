@@ -5,7 +5,7 @@ pool:
   name: LocalPool   # Tu agente local registrado en Azure DevOps
 
 variables:
-  projectDir: 'untitled1'
+  projectDir: ''
 
 steps:
   # Paso 1: Chequear el código
