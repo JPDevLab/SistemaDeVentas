@@ -5,7 +5,7 @@ pool:
   name: LocalPool
 
 variables:
-  projectDir: '/'
+  #projectDir: '/'
   system.debug: 'true'
 
 steps:
@@ -25,8 +25,8 @@ steps:
 
   - script: |
       echo "=== Verificando Gradle Wrapper ==="
-      dir $(projectDir)
-      dir $(projectDir)\gradlew*
+      
+      gradlew*
     displayName: "Verificar archivos Gradle"
 
   - task: Gradle@2
