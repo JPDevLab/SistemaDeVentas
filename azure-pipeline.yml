@@ -5,7 +5,7 @@ pool:
   name: LocalPool   # Tu agente local registrado en Azure DevOps
 
 variables:
-  projectDir: 'untitled1'
+  projectDir: ''
 
 steps:
   # Paso 1: Chequear el código
@@ -19,8 +19,8 @@ steps:
   # Paso 3: Ejecutar compilación y pruebas unitarias
   - task: Gradle@2
     inputs:
-      workingDirectory: '$(projectDir)'
-      gradleWrapperFile: '$(projectDir)/gradlew'
+      workingDirectory: '$(Build.SourcesDirectory)'
+      gradleWrapperFile: '$(Build.SourcesDirectory)\gradlew.bat'
       gradleOptions: '-Dfile.encoding=UTF-8 -Xmx3072m'
       publishJUnitResults: true
       testResultsFiles: '**/build/test-results/test/TEST-*.xml'
@@ -29,8 +29,8 @@ steps:
   # Paso 4: Ejecutar pruebas de aceptación (Cucumber)
   - task: Gradle@2
     inputs:
-      workingDirectory: '$(projectDir)'
-      gradleWrapperFile: '$(projectDir)/gradlew'
+      workingDirectory: '$(Build.SourcesDirectory)'
+      gradleWrapperFile: '$(Build.SourcesDirectory)\gradlew.bat'
       gradleOptions: '-Dfile.encoding=UTF-8'
       tasks: 'acceptanceTest'
       testResultsFiles: '**/build/test-results/acceptanceTest/TEST-*.xml'
@@ -39,15 +39,15 @@ steps:
   # Paso 5: Ejecutar pruebas de mutación (Pitest)
   - task: Gradle@2
     inputs:
-      workingDirectory: '$(projectDir)'
-      gradleWrapperFile: '$(projectDir)/gradlew'
+      workingDirectory: '$(Build.SourcesDirectory)'
+      gradleWrapperFile: '$(Build.SourcesDirectory)\gradlew.bat'
       gradleOptions: '-Dfile.encoding=UTF-8'
       tasks: 'pitest'
 
   # Paso 6 (Opcional): Análisis con SonarQube
   - task: Gradle@2
     inputs:
-       workingDirectory: '$(projectDir)'
-       gradleWrapperFile: '$(projectDir)/gradlew'
+       workingDirectory: '$(Build.SourcesDirectory)'
+       gradleWrapperFile: '$(Build.SourcesDirectory)\gradlew.bat'
        gradleOptions: '-Dfile.encoding=UTF-8'
        tasks: 'sonarqube'
