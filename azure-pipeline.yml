@@ -19,8 +19,8 @@ steps:
   # Paso 3: Ejecutar compilación y pruebas unitarias
   - task: Gradle@2
     inputs:
-      workingDirectory: '$(projectDir)'
-      gradleWrapperFile: '$(projectDir)/gradlew.bat'
+    workingDirectory: '$(Build.SourcesDirectory)'
+    gradleWrapperFile: '$(Build.SourcesDirectory)\gradlew.bat'
       gradleOptions: '-Dfile.encoding=UTF-8 -Xmx3072m'
       publishJUnitResults: true
       testResultsFiles: '**/build/test-results/test/TEST-*.xml'
