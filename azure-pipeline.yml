@@ -20,7 +20,7 @@ steps:
   - task: Gradle@2
     inputs:
       workingDirectory: '$(projectDir)'
-      gradleWrapperFile: '$(projectDir)/gradlew'
+      gradleWrapperFile: '$(projectDir)/gradlew.bat'
       gradleOptions: '-Dfile.encoding=UTF-8 -Xmx3072m'
       publishJUnitResults: true
       testResultsFiles: '**/build/test-results/test/TEST-*.xml'
