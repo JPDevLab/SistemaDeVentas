@@ -2,65 +2,52 @@ trigger:
   - main
 
 pool:
-  name: LocalPool
+  name: LocalPool   # Tu agente local registrado en Azure DevOps
 
 variables:
-  #projectDir: '/'
-  system.debug: 'true'
+  projectDir: 'untitled1'
 
 steps:
+  # Paso 1: Chequear el código
   - checkout: self
 
-  - script: |
-      echo "=== Diagnóstico inicial del agente local ==="
-      echo "Directorio actual:"
-      cd
-      echo "Contenido del workspace:"
-      dir
-      echo "Contenido del proyecto:"
-      dir $(projectDir)
-      echo "Versión de Java:"
-      java -version
-    displayName: "Diagnóstico inicial del agente"
+  # Paso 2: Verificar versión de Java instalada en el agente local
+  - script: java -version
+    displayName: "Verificar versión de Java (usando el del agente local)"
+    workingDirectory: $(projectDir)
 
-  - script: |
-      echo "=== Verificando Gradle Wrapper ==="
-      
-      gradlew*
-    displayName: "Verificar archivos Gradle"
-
+  # Paso 3: Ejecutar compilación y pruebas unitarias
   - task: Gradle@2
-    displayName: "Build y pruebas unitarias"
     inputs:
       workingDirectory: '$(projectDir)'
       gradleWrapperFile: '$(projectDir)/gradlew'
       gradleOptions: '-Dfile.encoding=UTF-8 -Xmx3072m'
       publishJUnitResults: true
       testResultsFiles: '**/build/test-results/test/TEST-*.xml'
-      tasks: 'clean build test --info --stacktrace'
+      tasks: 'clean build test'
 
+  # Paso 4: Ejecutar pruebas de aceptación (Cucumber)
   - task: Gradle@2
-    displayName: "Pruebas de aceptación Cucumber"
     inputs:
       workingDirectory: '$(projectDir)'
       gradleWrapperFile: '$(projectDir)/gradlew'
       gradleOptions: '-Dfile.encoding=UTF-8'
-      tasks: 'acceptanceTest --info --stacktrace'
+      tasks: 'acceptanceTest'
       testResultsFiles: '**/build/test-results/acceptanceTest/TEST-*.xml'
       publishJUnitResults: true
 
+  # Paso 5: Ejecutar pruebas de mutación (Pitest)
   - task: Gradle@2
-    displayName: "Pruebas de mutación PIT"
     inputs:
       workingDirectory: '$(projectDir)'
       gradleWrapperFile: '$(projectDir)/gradlew'
       gradleOptions: '-Dfile.encoding=UTF-8'
-      tasks: 'pitest --info --stacktrace'
+      tasks: 'pitest'
 
+  # Paso 6 (Opcional): Análisis con SonarQube
   - task: Gradle@2
-    displayName: "Análisis SonarQube"
     inputs:
-      workingDirectory: '$(projectDir)'
-      gradleWrapperFile: '$(projectDir)/gradlew'
-      gradleOptions: '-Dfile.encoding=UTF-8'
-      tasks: 'sonarqube --info --stacktrace'
+       workingDirectory: '$(projectDir)'
+       gradleWrapperFile: '$(projectDir)/gradlew'
+       gradleOptions: '-Dfile.encoding=UTF-8'
+       tasks: 'sonarqube'
