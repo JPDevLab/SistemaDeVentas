@@ -5,7 +5,7 @@
 | Campo | Valor |
 |---|---|
 | Proyecto | SistemaDeVentas (Proyecto 2 — Curso de Calidad de Software) |
-| Repositorio | Azure DevOps — `Calidad de software` (`https://dev.azure.com/juanacevedo949/Calidad%20de%20software/_git/Calidad%20de%20software`) |
+| Repositorio | GitHub — `https://github.com/JPDevLab/SistemaDeVentas` (espejo en Azure DevOps) |
 | Commit base analizado | Rama `master` (último commit de entrega) |
 | Cambios de la entrega | API REST, frontend estático, pruebas y ajustes de calidad |
 | Fecha del análisis | 2026-10-25 |

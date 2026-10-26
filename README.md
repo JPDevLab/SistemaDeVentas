@@ -2,6 +2,8 @@
 
 Aplicación de gestión de productos, inventario y pedidos con API REST y frontend web, desarrollada con Spring Boot 3.4.1 y Java 21. Incluye pruebas unitarias, de integración y de aceptación, cobertura con JaCoCo, pruebas de mutación con PITest y análisis estático con SonarQube.
 
+Repositorio: [github.com/JPDevLab/SistemaDeVentas](https://github.com/JPDevLab/SistemaDeVentas).
+
 ## Requisitos
 
 | Herramienta | Versión |
