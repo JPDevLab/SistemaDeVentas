@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#2563eb">
+    <title>SistemaDeVentas</title>
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%232563eb'/%3E%3Ctext x='50%25' y='55%25' text-anchor='middle' dominant-baseline='middle' font-family='Arial' font-size='34' font-weight='bold' fill='white'%3ES%3C/text%3E%3C/svg%3E">
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+<header class="app-header">
+    <a class="brand" href="#/dashboard">
+        <span class="brand__mark" aria-hidden="true">S</span>
+        <span>SistemaDeVentas</span>
+    </a>
+    <nav class="app-nav" aria-label="Navegación principal">
+        <a href="#/dashboard" data-route="dashboard">Dashboard</a>
+        <a href="#/productos" data-route="productos">Productos</a>
+        <a href="#/inventario" data-route="inventario">Inventario</a>
+        <a href="#/pedidos" data-route="pedidos">Pedidos</a>
+    </nav>
+</header>
+
+<main id="app" class="app-main"></main>
+
+<footer class="app-footer">
+    <span id="api-status" class="status status--idle">API: verificando…</span>
+    <span>Proyecto de Calidad de Software</span>
+</footer>
+
+<div id="toast-container" class="toast-container" aria-live="polite" aria-atomic="true"></div>
+
+<script type="module" src="js/app.js"></script>
+</body>
+</html>

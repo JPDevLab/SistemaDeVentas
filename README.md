@@ -1,6 +1,6 @@
 # SistemaDeVentas
 
-API REST para la gestión de productos, inventario y pedidos, desarrollada con Spring Boot 3.4.1 y Java 21. Incluye pruebas unitarias, de integración y de aceptación, cobertura con JaCoCo, pruebas de mutación con PITest y análisis estático con SonarQube.
+Aplicación de gestión de productos, inventario y pedidos con API REST y frontend web, desarrollada con Spring Boot 3.4.1 y Java 21. Incluye pruebas unitarias, de integración y de aceptación, cobertura con JaCoCo, pruebas de mutación con PITest y análisis estático con SonarQube.
 
 ## Requisitos
 
@@ -34,6 +34,14 @@ $env:SERVER_PORT = "8081"
 ```
 
 También se puede desactivar el log SQL con `JPA_SHOW_SQL=false` (valor por defecto).
+
+## Frontend
+
+La interfaz web se sirve desde el mismo Spring Boot y consume la API con rutas relativas. Una vez iniciada la aplicación, abrir `http://localhost:8080/` (o el puerto configurado en `SERVER_PORT`).
+
+- SPA con rutas por hash: `#/dashboard`, `#/productos`, `#/inventario` y `#/pedidos`.
+- Módulos ESM en `src/main/resources/static/js` y estilos en `css/styles.css`; no requiere Node ni compilación.
+- El código estático se excluye del análisis de SonarQube (`sonar.exclusions`).
 
 ## Pruebas
 
@@ -101,6 +109,10 @@ src/main/java/org/example
   dto/          request/response (records)
   mapper/       conversión entidad <-> DTO
   exception/    excepciones de dominio y manejador global
+src/main/resources/static
+  index.html    shell de la SPA
+  css/          estilos responsivos
+  js/           api, formato, UI y vistas por módulo
 src/test/java/org/example
   model/        pruebas de dominio
   service/      pruebas unitarias con Mockito

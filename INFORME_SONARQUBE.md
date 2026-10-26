@@ -6,8 +6,8 @@
 |---|---|
 | Proyecto | SistemaDeVentas (Proyecto 2 — Curso de Calidad de Software) |
 | Repositorio | Azure DevOps — `Calidad de software` (`https://dev.azure.com/juanacevedo949/Calidad%20de%20software/_git/Calidad%20de%20software`) |
-| Commit base analizado | `48a89fd` (rama `master`) |
-| Cambios de la entrega | API REST, pruebas y ajustes de calidad **aún sin commitear** al momento de este informe |
+| Commit base analizado | Rama `master` (último commit de entrega) |
+| Cambios de la entrega | API REST, frontend estático, pruebas y ajustes de calidad |
 | Fecha del análisis | 2026-10-25 |
 | Integrantes | _[completar nombres y códigos]_ |
 | Servidor de análisis | SonarQube Community 26.8.0 (`http://localhost:9000`) |
@@ -78,6 +78,18 @@ Puntos relevantes:
 | GET | `/pedidos/{id}` | Obtener pedido | 200 / 404 |
 | PATCH | `/pedidos/{id}/cancelar` | Cancelar pedido (restaura stock) | 200 / 404 / 409 |
 | PATCH | `/pedidos/{id}/entregar` | Entregar pedido | 200 / 404 / 409 |
+
+### 3.3 Frontend estático
+
+Se incluyó una interfaz web servida por el propio Spring Boot desde `src/main/resources/static`, sin build de Node ni dependencias externas:
+
+- SPA con enrutamiento por hash (`#/dashboard`, `#/productos`, `#/inventario`, `#/pedidos`) escrita en JavaScript modular (ESM).
+- Consumo de la API con rutas relativas (mismo origen, sin CORS) y manejo uniforme de errores `{status, error, message}`.
+- Vistas de dashboard, catálogo de productos, inventario (entradas y movimientos) y pedidos (carrito, descuentos en vivo, detalle, cancelar y entregar).
+- Formato de moneda COP y fechas sin conversión de zona horaria; descuentos replicados en el cliente con aritmética en centavos solo para previsualización.
+- Diseño responsivo con variables CSS, modales nativos (`<dialog>`), toasts y estados vacíos/carga.
+
+Para evitar que el código de presentación afecte las métricas del backend, `build.gradle.kts` excluye `src/main/resources/static/**` del análisis de SonarQube (`sonar.exclusions`).
 
 ---
 
@@ -275,7 +287,7 @@ Resultados verificados vía API de SonarQube:
 
 ## 8. Riesgos y limitaciones
 
-1. **Cambios sin commitear**: la entrega (API, pruebas y ajustes) está en el árbol de trabajo local. Para trazabilidad y para que SonarQube asocie correctamente el código nuevo, se debe crear el commit correspondiente.
+1. **Frontend sin pruebas automatizadas**: la interfaz se verificó manualmente (smoke tests de rutas y flujos); no se agregó Playwright ni otro framework E2E para mantener el pipeline sin dependencias de Node.
 2. **`kotlin:S6474`**: se recomienda generar `gradle/verification-metadata.xml` (`gradlew --write-verification-metadata sha256 help`) y validar el build con verificación estricta; no se aplicó en esta iteración por el riesgo de romper la resolución de dependencias del entorno de evaluación.
 3. **Seguridad del token**: el token antiguo ya fue revocado y el nuevo se almacena fuera del repositorio. Falta registrarlo como variable secreta `SONAR_TOKEN` en Azure Pipelines para que el paso de Sonar se ejecute en CI. Conviene rotarlo periódicamente.
 4. **Historial de Git**: el token revocado sigue presente en commits antiguos. Si la política del curso exige eliminar secretos del historial, se debe reescribir con `git filter-repo`/BFG y coordinar un `force-push`; no se recomienda por tratarse de un repositorio compartido.
@@ -291,7 +303,7 @@ Resultados verificados vía API de SonarQube:
 - PITest confirma una fuerza de pruebas del 88 % sobre el código cubierto.
 - SonarQube reporta **Quality Gate OK**, con 0 bugs y 0 code smells y 84.6 % de cobertura; el único hallazgo abierto es una vulnerabilidad menor heredada sobre verificación de dependencias.
 - El token de SonarQube fue revocado y sustituido; el pipeline de Azure quedó corregido para dispararse en `master`, ejecutar las pruebas de mutación y publicar evidencias.
-- El proyecto queda en condiciones de ser entregado una vez se realice el commit de los cambios, se registre `SONAR_TOKEN` en Azure y se complete la información de los integrantes.
+- La entrega queda versionada en la rama `master` (API, frontend, pruebas y pipeline); resta registrar `SONAR_TOKEN` en Azure y completar la información de los integrantes.
 
 ---
 
@@ -308,6 +320,8 @@ docker run -d --name sistema-ventas-db -p 5432:5432 `
 # Si el 8080 está ocupado
 $env:SERVER_PORT = "8081"
 .\gradlew.bat bootRun
+
+# Interfaz web: http://localhost:8080/ (o el puerto configurado)
 ```
 
 > Nota: `server.port` se resuelve como `${SERVER_PORT:8080}`. En el entorno de pruebas se ejecutó con `SERVER_PORT=8081` porque el puerto 8080 estaba ocupado por otra aplicación.

@@ -64,6 +64,7 @@ sonar {
             property("sonar.token", sonarToken)
         }
         property("sonar.coverage.jacoco.xmlReportPaths", "build/reports/jacoco/test/jacocoTestReport.xml")
+        property("sonar.exclusions", "src/main/resources/static/**")
     }
 }
 
