@@ -10,6 +10,8 @@ plugins {
 group = "org.example"
 version = "1.0-SNAPSHOT"
 
+val cucumberVersion = "7.18.0"
+
 java {
     sourceCompatibility = JavaVersion.VERSION_21
     targetCompatibility = JavaVersion.VERSION_21
@@ -22,17 +24,19 @@ repositories {
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
+    implementation("org.springframework.boot:spring-boot-starter-validation")
+
     runtimeOnly("org.postgresql:postgresql")
 
+    testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.junit.jupiter:junit-jupiter")
-    testRuntimeOnly("org.junit.platform:junit-platform-launcher:1.11.4")
+    testImplementation("io.cucumber:cucumber-java:$cucumberVersion")
+    testImplementation("io.cucumber:cucumber-junit-platform-engine:$cucumberVersion")
 
-    testImplementation("io.cucumber:cucumber-java:7.18.0")
-    testImplementation("io.cucumber:cucumber-junit-platform-engine:7.18.0")
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+    testRuntimeOnly("com.h2database:h2")
 
     pitest("org.pitest:pitest-junit5-plugin:1.2.1")
-
-
 }
 
 tasks.test {
@@ -48,28 +52,38 @@ tasks.jacocoTestReport {
     }
 }
 
+val sonarToken: String? = providers.environmentVariable("SONAR_TOKEN").orNull
+    ?: providers.gradleProperty("sonarToken").orNull
+
 sonar {
     properties {
         property("sonar.projectKey", "SistemaDeVentas")
         property("sonar.projectName", "Proyecto Demo Calidad")
         property("sonar.host.url", "http://localhost:9000")
-        property("sonar.token", "sqp_d421ca303eef46eafbabb0d9a580a448ede8402f")
+        if (sonarToken != null) {
+            property("sonar.token", sonarToken)
+        }
         property("sonar.coverage.jacoco.xmlReportPaths", "build/reports/jacoco/test/jacocoTestReport.xml")
     }
-
-
-
 }
 
-tasks.register<Test>("acceptanceTest") { useJUnitPlatform()
+tasks.sonar {
+    dependsOn(tasks.test, tasks.jacocoTestReport)
+}
+
+tasks.register<Test>("acceptanceTest") {
     description = "Runs Cucumber acceptance tests."
     group = "verification"
+    useJUnitPlatform()
+    filter {
+        includeTestsMatching("runners.RunCucumberTest")
+    }
 }
 
 pitest { pitestVersion.set("1.19.0")
     junit5PluginVersion.set("1.2.1")
     targetClasses.set(listOf("org.example.*"))
-    targetTests.set(listOf("org.example.model.*"))
+    targetTests.set(listOf("org.example.model.*", "org.example.service.impl.*"))
     threads.set(4)
     useClasspathFile.set(true)
     outputFormats.set(listOf("HTML"))

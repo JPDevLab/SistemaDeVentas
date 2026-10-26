@@ -1,11 +1,16 @@
 trigger:
-  - main
+  branches:
+    include:
+      - master
 
 pool:
-  name: LocalPool   # Tu agente local registrado en Azure DevOps
+  name: LocalPool   # Agente local registrado en Azure DevOps
 
 variables:
   projectDir: ''
+  # Para habilitar el análisis SonarQube: definir sonarEnabled=true y la
+  # variable secreta SONAR_TOKEN (Pipelines > Edit > Variables).
+  sonarEnabled: 'false'
 
 steps:
   # Paso 1: Chequear el código
@@ -16,38 +21,58 @@ steps:
     displayName: "Verificar versión de Java (usando el del agente local)"
     workingDirectory: $(projectDir)
 
-  # Paso 3: Ejecutar compilación y pruebas unitarias
+  # Paso 3: Compilación y pruebas (unitarias + integración)
   - task: Gradle@2
+    displayName: "Compilar y ejecutar pruebas"
     inputs:
       workingDirectory: '$(Build.SourcesDirectory)'
       gradleWrapperFile: '$(Build.SourcesDirectory)\gradlew.bat'
       gradleOptions: '-Dfile.encoding=UTF-8 -Xmx3072m'
       publishJUnitResults: true
       testResultsFiles: '**/build/test-results/test/TEST-*.xml'
-      tasks: 'clean build test'
+      tasks: 'clean build'
 
-  # Paso 4: Ejecutar pruebas de aceptación (Cucumber)
+  # Paso 4: Pruebas de aceptación (Cucumber)
   - task: Gradle@2
+    displayName: "Pruebas de aceptación (Cucumber)"
     inputs:
       workingDirectory: '$(Build.SourcesDirectory)'
       gradleWrapperFile: '$(Build.SourcesDirectory)\gradlew.bat'
       gradleOptions: '-Dfile.encoding=UTF-8'
-      tasks: 'acceptanceTest'
-      testResultsFiles: '**/build/test-results/acceptanceTest/TEST-*.xml'
       publishJUnitResults: true
+      testResultsFiles: '**/build/test-results/acceptanceTest/TEST-*.xml'
+      tasks: 'acceptanceTest'
 
-  # Paso 5: Ejecutar pruebas de mutación (Pitest)
+  # Paso 5: Pruebas de mutación (PITest)
   - task: Gradle@2
+    displayName: "Pruebas de mutación (PITest)"
     inputs:
       workingDirectory: '$(Build.SourcesDirectory)'
       gradleWrapperFile: '$(Build.SourcesDirectory)\gradlew.bat'
       gradleOptions: '-Dfile.encoding=UTF-8'
       tasks: 'pitest'
 
-  # Paso 6 (Opcional): Análisis con SonarQube
-  - task: Gradle@2
+  # Paso 6: Publicar evidencias de calidad
+  - task: PublishPipelineArtifact@1
+    displayName: "Publicar reporte de cobertura JaCoCo"
     inputs:
-       workingDirectory: '$(Build.SourcesDirectory)'
-       gradleWrapperFile: '$(Build.SourcesDirectory)\gradlew.bat'
-       gradleOptions: '-Dfile.encoding=UTF-8'
-       tasks: 'sonarqube'
+      targetPath: 'build/reports/jacoco'
+      artifact: 'jacoco-report'
+
+  - task: PublishPipelineArtifact@1
+    displayName: "Publicar reporte de mutaciones PITest"
+    inputs:
+      targetPath: 'build/reports/pitest'
+      artifact: 'pitest-report'
+
+  # Paso 7: Análisis con SonarQube (requiere sonarEnabled=true y SONAR_TOKEN)
+  - task: Gradle@2
+    displayName: "Análisis SonarQube"
+    condition: and(succeeded(), eq(variables['sonarEnabled'], 'true'))
+    env:
+      SONAR_TOKEN: $(SONAR_TOKEN)
+    inputs:
+      workingDirectory: '$(Build.SourcesDirectory)'
+      gradleWrapperFile: '$(Build.SourcesDirectory)\gradlew.bat'
+      gradleOptions: '-Dfile.encoding=UTF-8'
+      tasks: 'sonar'
