@@ -25,8 +25,10 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation("org.springframework.boot:spring-boot-starter-validation")
+    implementation("org.springframework.boot:spring-boot-starter-actuator")
 
     runtimeOnly("org.postgresql:postgresql")
+    runtimeOnly("com.h2database:h2")
 
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.junit.jupiter:junit-jupiter")
@@ -34,7 +36,6 @@ dependencies {
     testImplementation("io.cucumber:cucumber-junit-platform-engine:$cucumberVersion")
 
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
-    testRuntimeOnly("com.h2database:h2")
 
     pitest("org.pitest:pitest-junit5-plugin:1.2.1")
 }

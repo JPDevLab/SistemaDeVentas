@@ -45,6 +45,35 @@ La interfaz web se sirve desde el mismo Spring Boot y consume la API con rutas r
 - Módulos ESM en `src/main/resources/static/js` y estilos en `css/styles.css`; no requiere Node ni compilación.
 - El código estático se excluye del análisis de SonarQube (`sonar.exclusions`).
 
+## Health check
+
+La aplicación expone un endpoint público de verificación mediante Spring Boot Actuator:
+
+```powershell
+Invoke-WebRequest http://localhost:8080/actuator/health -UseBasicParsing
+```
+
+Respuesta esperada: `HTTP 200` con `{"status":"UP"}`. Si la base de datos no está disponible, el estado será `DOWN` y el código HTTP `503`.
+
+Para pipelines de despliegue o análisis dinámico, configurar `healthPath: /actuator/health`.
+
+## Perfil zap (datos aislados)
+
+Para pruebas dinámicas de seguridad con OWASP ZAP existe el perfil `zap`, que usa una base H2 en memoria y datos ficticios. No requiere PostgreSQL ni credenciales reales:
+
+```powershell
+$env:SERVER_PORT = "8081"
+java -jar build\libs\SistemaDeVentas-1.0-SNAPSHOT.jar --spring.profiles.active=zap
+```
+
+También se puede usar con Gradle:
+
+```powershell
+.\gradlew.bat bootRun --args="--spring.profiles.active=zap"
+```
+
+El perfil carga `data-zap.sql` con productos y un pedido de ejemplo, desactiva la consola H2 y solo expone `health`. Para el pipeline, definir `SPRING_PROFILES_ACTIVE=zap` (o pasar el argumento equivalente) únicamente en el paso de análisis dinámico.
+
 ## Pruebas
 
 ```powershell

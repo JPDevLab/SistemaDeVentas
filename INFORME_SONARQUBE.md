@@ -79,6 +79,8 @@ Puntos relevantes:
 | PATCH | `/pedidos/{id}/cancelar` | Cancelar pedido (restaura stock) | 200 / 404 / 409 |
 | PATCH | `/pedidos/{id}/entregar` | Entregar pedido | 200 / 404 / 409 |
 
+Además, Spring Boot Actuator expone `GET /actuator/health` sin autenticación (`{"status":"UP"}`, HTTP 200) para verificar la disponibilidad de la aplicación desde pipelines; se usa como `healthPath` en los pasos de despliegue o análisis dinámico.
+
 ### 3.3 Frontend estático
 
 Se incluyó una interfaz web servida por el propio Spring Boot desde `src/main/resources/static`, sin build de Node ni dependencias externas:
@@ -90,6 +92,15 @@ Se incluyó una interfaz web servida por el propio Spring Boot desde `src/main/r
 - Diseño responsivo con variables CSS, modales nativos (`<dialog>`), toasts y estados vacíos/carga.
 
 Para evitar que el código de presentación afecte las métricas del backend, `build.gradle.kts` excluye `src/main/resources/static/**` del análisis de SonarQube (`sonar.exclusions`).
+
+### 3.4 Perfil zap para pruebas de seguridad
+
+Se agregó el perfil `zap` (`src/main/resources/application-zap.properties`) para aislar los datos de las pruebas dinámicas:
+
+- Base H2 en memoria (`jdbc:h2:mem:zapsecurity`) con `create-drop`; no usa PostgreSQL ni credenciales reales.
+- Datos ficticios cargados desde `data-zap.sql` (productos activos, un producto inactivo, movimientos y un pedido de ejemplo).
+- Consola H2 deshabilitada y únicamente se expone `GET /actuator/health`.
+- El perfil se activa con `--spring.profiles.active=zap` o `SPRING_PROFILES_ACTIVE=zap` solo en el paso de análisis dinámico.
 
 ---
 
