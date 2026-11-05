@@ -113,19 +113,22 @@ steps:
       }
     displayName: '05 - OWASP ZAP Baseline'
 
-  - task: PublishPipelineArtifact@1
-    displayName: '06 - Publicar evidencias'
-    condition: succeededOrFailed()
-    inputs:
-      targetPath: '$(Build.ArtifactStagingDirectory)/zap'
-      artifact: 'reporte-seguridad-zap'
-      publishLocation: 'pipeline'
-
   - powershell: |
       $procesoId = '$(AppPid)'
       if ($procesoId -match '^\d+$') {
         Stop-Process -Id ([int]$procesoId) -Force `
           -ErrorAction SilentlyContinue
+        Wait-Process -Id ([int]$procesoId) -Timeout 15 `
+          -ErrorAction SilentlyContinue
+        Start-Sleep -Seconds 1
       }
     condition: always()
-    displayName: '07 - Detener aplicacion de laboratorio'
+    displayName: '06 - Detener aplicacion de laboratorio'
+
+  - task: PublishPipelineArtifact@1
+    displayName: '07 - Publicar evidencias'
+    condition: succeededOrFailed()
+    inputs:
+      targetPath: '$(Build.ArtifactStagingDirectory)/zap'
+      artifact: 'reporte-seguridad-zap'
+      publishLocation: 'pipeline'
