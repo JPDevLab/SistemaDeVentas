@@ -64,13 +64,19 @@ steps:
         Sort-Object LastWriteTime -Descending |
         Select-Object -First 1
       if (-not $jar) { throw 'No se encontro bootJar en build\libs.' }
+      $javaExe = 'java.exe'
+      if ($env:JAVA_HOME) {
+        $candidato = Join-Path $env:JAVA_HOME 'bin\java.exe'
+        if (Test-Path -LiteralPath $candidato) { $javaExe = $candidato }
+      }
+      Write-Host "Java de la aplicacion: $javaExe"
       $out = Join-Path $logs 'aplicacion-salida.log'
       $err = Join-Path $logs 'aplicacion-error.log'
       $args = '-jar "' + $jar.FullName + '"' +
         ' --server.port=$(appPort)' +
         ' --server.address=0.0.0.0' +
         ' --spring.profiles.active=$(springProfile)'
-      $proc = Start-Process -FilePath 'java.exe' -ArgumentList $args `
+      $proc = Start-Process -FilePath $javaExe -ArgumentList $args `
         -PassThru -RedirectStandardOutput $out -RedirectStandardError $err
       $pidFile = Join-Path $env:BUILD_SOURCESDIRECTORY 'build\app.pid'
       Set-Content -LiteralPath $pidFile -Value $proc.Id -Encoding ascii
@@ -121,61 +127,48 @@ steps:
 
   - powershell: |
       $ErrorActionPreference = 'Stop'
-      $ids = @()
       $patron = 'SistemaDeVentas-.*\.jar'
+      $puerto = '$(appPort)'
 
-      $java = Get-CimInstance Win32_Process -Filter "Name='java.exe'" `
-        -ErrorAction SilentlyContinue |
-        Where-Object {
-          $_.CommandLine -match $patron -or
-          $_.CommandLine -match "--server\.port=$(appPort)"
+      function Get-AppProcesses {
+        @(Get-CimInstance Win32_Process -Filter "Name='java.exe'" `
+          -ErrorAction SilentlyContinue |
+          Where-Object {
+            $_.CommandLine -match $patron -or
+            $_.CommandLine -match "--server\.port=$puerto"
+          })
+      }
+
+      for ($intento = 1; $intento -le 3; $intento++) {
+        $app = Get-AppProcesses
+        if ($app.Count -eq 0) { break }
+        Write-Host "Intento ${intento}: PID $($app.ProcessId -join ', ')"
+        foreach ($p in $app) {
+          if (-not (Get-Process -Id $p.ProcessId -ErrorAction SilentlyContinue)) {
+            continue
+          }
+          Stop-Process -Id $p.ProcessId -Force -ErrorAction SilentlyContinue
+          Start-Sleep -Milliseconds 500
+          if (Get-Process -Id $p.ProcessId -ErrorAction SilentlyContinue) {
+            & cmd.exe /c "taskkill /F /T /PID $($p.ProcessId) >nul 2>&1"
+          }
         }
-      if ($java) { $ids += @($java.ProcessId) }
-
-      $conn = Get-NetTCPConnection -LocalPort $(appPort) -State Listen `
-        -ErrorAction SilentlyContinue
-      if ($conn) { $ids += @($conn.OwningProcess) }
-
-      $candidatos = @()
-      $pidFile = Join-Path $env:BUILD_SOURCESDIRECTORY 'build\app.pid'
-      if (Test-Path -LiteralPath $pidFile) {
-        $texto = (Get-Content -LiteralPath $pidFile -Raw).Trim()
-        if ($texto -match '^\d+$') { $candidatos += [int]$texto }
-      }
-      $procesoId = '$(AppPid)'
-      if ($procesoId -match '^\d+$') { $candidatos += [int]$procesoId }
-      foreach ($candidato in ($candidatos | Sort-Object -Unique)) {
-        $p = Get-CimInstance Win32_Process -Filter "ProcessId=$candidato" `
-          -ErrorAction SilentlyContinue
-        if ($p -and $p.Name -eq 'java.exe' -and $p.CommandLine -match $patron) {
-          $ids += $p.ProcessId
-        }
+        Start-Sleep -Seconds 1
       }
 
-      $ids = @($ids | Sort-Object -Unique)
-      Write-Host "Procesos a detener: $($ids -join ', ')"
-      foreach ($id in $ids) {
-        & taskkill.exe /F /T /PID $id *> $null
-        if ($LASTEXITCODE -ne 0) {
-          Stop-Process -Id $id -Force -ErrorAction SilentlyContinue
-        }
+      $quedan = Get-AppProcesses
+      if ($quedan.Count -gt 0) {
+        throw "No se pudieron detener los PID: $($quedan.ProcessId -join ', ')"
       }
-      Start-Sleep -Seconds 2
-
-      $vivos = @($ids | Where-Object {
-        Get-Process -Id $_ -ErrorAction SilentlyContinue
-      })
-      if ($vivos.Count -gt 0) {
-        throw "No se pudieron detener los PID: $($vivos -join ', ')"
-      }
-      $sigue = Get-NetTCPConnection -LocalPort $(appPort) -State Listen `
+      $sigue = Get-NetTCPConnection -LocalPort $puerto -State Listen `
         -ErrorAction SilentlyContinue
       if ($sigue) {
-        throw "El puerto $(appPort) sigue ocupado por PID $($sigue.OwningProcess)"
+        throw "El puerto $puerto sigue ocupado por PID $($sigue.OwningProcess)"
       }
 
       $logs = Join-Path $env:BUILD_ARTIFACTSTAGINGDIRECTORY 'logs'
       $dir = Join-Path $env:BUILD_ARTIFACTSTAGINGDIRECTORY 'zap'
+      New-Item -Path $dir -ItemType Directory -Force | Out-Null
       foreach ($nombre in @('aplicacion-salida.log', 'aplicacion-error.log')) {
         $origen = Join-Path $logs $nombre
         if (-not (Test-Path -LiteralPath $origen)) { continue }
