@@ -64,6 +64,7 @@ steps:
       $err = Join-Path $dir 'aplicacion-error.log'
       $args = '-jar "' + $jar.FullName + '"' +
         ' --server.port=$(appPort)' +
+        ' --server.address=0.0.0.0' +
         ' --spring.profiles.active=$(springProfile)'
       $proc = Start-Process -FilePath 'java.exe' -ArgumentList $args `
         -PassThru -RedirectStandardOutput $out -RedirectStandardError $err
@@ -91,7 +92,11 @@ steps:
       $ErrorActionPreference = 'Stop'
       $dir = Join-Path $env:BUILD_ARTIFACTSTAGINGDIRECTORY 'zap'
       $mount = "${dir}:/zap/wrk:rw"
-      docker run --rm -v "$mount" ghcr.io/zaproxy/zaproxy:stable `
+      # host.docker.internal resuelve IPv6 primero en Docker Desktop; forzar IPv4 evita "Network is unreachable".
+      docker run --rm `
+        --add-host=host.docker.internal:host-gateway `
+        -e JAVA_TOOL_OPTIONS="-Djava.net.preferIPv4Stack=true" `
+        -v "$mount" ghcr.io/zaproxy/zaproxy:stable `
         zap-baseline.py -t '$(zapTarget)' -m 2 `
         -r reporte-zap.html -J reporte-zap.json -I
       $codigo = $LASTEXITCODE
