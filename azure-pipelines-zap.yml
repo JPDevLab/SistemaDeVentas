@@ -114,13 +114,22 @@ steps:
     displayName: '05 - OWASP ZAP Baseline'
 
   - powershell: |
+      $ErrorActionPreference = 'Stop'
+      $ids = @()
       $procesoId = '$(AppPid)'
-      if ($procesoId -match '^\d+$') {
-        Stop-Process -Id ([int]$procesoId) -Force `
-          -ErrorAction SilentlyContinue
-        Wait-Process -Id ([int]$procesoId) -Timeout 15 `
-          -ErrorAction SilentlyContinue
-        Start-Sleep -Seconds 1
+      if ($procesoId -match '^\d+$') { $ids += [int]$procesoId }
+      $conn = Get-NetTCPConnection -LocalPort $(appPort) -State Listen `
+        -ErrorAction SilentlyContinue
+      if ($conn) { $ids += $conn.OwningProcess }
+      foreach ($id in ($ids | Sort-Object -Unique)) {
+        Stop-Process -Id $id -Force -ErrorAction SilentlyContinue
+        Wait-Process -Id $id -Timeout 15 -ErrorAction SilentlyContinue
+      }
+      Start-Sleep -Seconds 2
+      $sigue = Get-NetTCPConnection -LocalPort $(appPort) -State Listen `
+        -ErrorAction SilentlyContinue
+      if ($sigue) {
+        throw "El puerto $(appPort) sigue ocupado por PID $($sigue.OwningProcess)"
       }
     condition: always()
     displayName: '06 - Detener aplicacion de laboratorio'
