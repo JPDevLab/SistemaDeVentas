@@ -60,9 +60,41 @@ async function verificarApi() {
     }
 }
 
+async function verificarSesion() {
+    try {
+        const response = await fetch("/auth/me", { headers: { Accept: "application/json" } });
+        if (!response.ok) {
+            return true;
+        }
+        const data = await response.json();
+        if (!data.autenticado) {
+            window.location.replace("/login.html");
+            return false;
+        }
+        const usuario = document.getElementById("current-user");
+        if (usuario) {
+            usuario.textContent = data.usuario ?? "";
+        }
+        return true;
+    } catch (error) {
+        return true;
+    }
+}
+
 status.addEventListener("click", verificarApi);
 status.style.cursor = "pointer";
 status.title = "Volver a verificar la conexión";
+
+const logout = document.getElementById("logout");
+if (logout) {
+    logout.addEventListener("click", async () => {
+        try {
+            await fetch("/auth/logout", { method: "POST" });
+        } finally {
+            window.location.replace("/login.html");
+        }
+    });
+}
 
 window.addEventListener("hashchange", navegar);
 window.addEventListener("unhandledrejection", (event) => {
@@ -70,5 +102,12 @@ window.addEventListener("unhandledrejection", (event) => {
     event.preventDefault();
 });
 
-verificarApi();
-navegar();
+async function iniciar() {
+    if (!(await verificarSesion())) {
+        return;
+    }
+    verificarApi();
+    navegar();
+}
+
+iniciar();

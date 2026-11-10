@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#2563eb">
+    <title>Iniciar sesión - SistemaDeVentas</title>
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%232563eb'/%3E%3Ctext x='50%25' y='55%25' text-anchor='middle' dominant-baseline='middle' font-family='Arial' font-size='34' font-weight='bold' fill='white'%3ES%3C/text%3E%3C/svg%3E">
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body class="login-body">
+<main class="login-shell">
+    <a class="brand login-brand" href="login.html">
+        <span class="brand__mark" aria-hidden="true">S</span>
+        <span>SistemaDeVentas</span>
+    </a>
+
+    <section class="card login-card">
+        <div class="card__body">
+            <h1 class="page-title">Iniciar sesión</h1>
+            <p class="page-subtitle">Accede para administrar productos, inventario y pedidos.</p>
+
+            <form id="login-form" class="form" data-testid="login-form" novalidate>
+                <label class="form-field">
+                    <span class="form-label">Usuario</span>
+                    <input id="login-usuario" name="usuario" class="input" type="text"
+                           autocomplete="username" required data-testid="login-usuario">
+                </label>
+                <label class="form-field">
+                    <span class="form-label">Contraseña</span>
+                    <input id="login-contrasena" name="contrasena" class="input" type="password"
+                           autocomplete="current-password" required data-testid="login-contrasena">
+                </label>
+                <p id="login-error" class="form-error" data-testid="login-error" role="alert"></p>
+                <button class="button button--primary login-submit" type="submit" data-testid="login-submit">
+                    Entrar
+                </button>
+            </form>
+        </div>
+    </section>
+
+    <p class="login-footer">Proyecto de Calidad de Software</p>
+</main>
+<script type="module" src="js/login.js"></script>
+</body>
+</html>

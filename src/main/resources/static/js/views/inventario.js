@@ -21,7 +21,9 @@ export async function render(container) {
 
     const productoSelect = h("select", {
         class: "input",
+        id: "inventario-producto",
         "aria-label": "Producto",
+        "data-testid": "inventario-producto",
         on: {
             change: async (event) => {
                 estado.productoId = event.target.value;
@@ -31,20 +33,22 @@ export async function render(container) {
         },
     });
 
-    const stockValor = h("p", { class: "stat__value" }, "—");
+    const stockValor = h("p", { class: "stat__value", "data-testid": "inventario-stock" }, "—");
     const stockHint = h("p", { class: "stat__hint" }, "Selecciona un producto para consultar su stock.");
 
     const cantidad = h("input", {
         class: "input",
+        id: "inventario-cantidad",
         type: "number",
         min: "1",
         step: "1",
         value: "1",
         "aria-label": "Cantidad de entrada",
+        "data-testid": "inventario-cantidad",
     });
 
     const entradaError = h("p", { class: "form-error", role: "alert" });
-    const registrar = h("button", { class: "button button--primary", type: "submit" }, "Registrar entrada");
+    const registrar = h("button", { class: "button button--primary", type: "submit", "data-testid": "inventario-registrar" }, "Registrar entrada");
 
     const movimientosBody = h("tbody");
     const busquedaProducto = h("input", {
@@ -52,6 +56,7 @@ export async function render(container) {
         type: "search",
         placeholder: "Filtrar movimientos por producto…",
         "aria-label": "Filtrar movimientos",
+        "data-testid": "inventario-buscar",
         on: {
             input: (event) => {
                 estado.busqueda = event.target.value.trim().toLowerCase();
@@ -62,7 +67,7 @@ export async function render(container) {
 
     const formEntrada = h(
         "form",
-        { class: "form" },
+        { class: "form", "data-testid": "inventario-form" },
         h(
             "label",
             { class: "form-field" },
@@ -242,7 +247,12 @@ export async function render(container) {
         for (const movimiento of visibles) {
             movimientosBody.append(h(
                 "tr",
-                {},
+                {
+                    "data-testid": "movimiento-row",
+                    "data-producto": movimiento.productoNombre ?? "",
+                    "data-tipo": movimiento.tipo,
+                    "data-cantidad": movimiento.cantidad,
+                },
                 h("td", { class: "muted" }, formatDate(movimiento.fecha)),
                 h("td", {}, movimiento.productoNombre ?? `Producto #${movimiento.productoId}`),
                 h("td", {}, estadoBadge(movimiento.tipo)),

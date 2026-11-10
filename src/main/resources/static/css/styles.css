@@ -807,3 +807,49 @@ select.input {
         max-width: none;
     }
 }
+
+.app-user {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+}
+
+.login-body {
+    display: grid;
+    min-height: 100vh;
+    padding: 2rem;
+    place-items: center;
+    background: radial-gradient(circle at top, #dbeafe 0, var(--bg) 46%);
+}
+
+.login-shell {
+    width: min(440px, 100%);
+}
+
+.login-brand {
+    justify-content: center;
+    margin-bottom: 1rem;
+}
+
+.login-card {
+    box-shadow: var(--shadow);
+}
+
+.login-card .page-title {
+    margin-bottom: 0.3rem;
+}
+
+.login-card .page-subtitle {
+    margin-bottom: 1.2rem;
+}
+
+.login-submit {
+    width: 100%;
+}
+
+.login-footer {
+    margin: 1rem 0 0;
+    color: var(--muted);
+    font-size: 0.8rem;
+    text-align: center;
+}

@@ -86,6 +86,18 @@ El perfil carga `data-zap.sql` con productos y un pedido de ejemplo, desactiva l
 
 Las pruebas de integración usan el perfil `test` (`src/test/resources/application-test.properties`) con H2, por lo que no requieren PostgreSQL.
 
+## Autenticación y pruebas E2E
+
+La aplicación incluye login con sesión para el frontend. Las credenciales demo son `admin` / `admin123` y se pueden sobrescribir con `APP_AUTH_USUARIO` y `APP_AUTH_CLAVE`. Los perfiles `test` y `zap` desactivan la autenticación para no afectar sus pruebas.
+
+El proyecto E2E está en `e2e/` y usa Serenity, Cucumber, Selenium y Chrome. Desde la raíz:
+
+```powershell
+.\e2e\run-e2e.ps1
+```
+
+El script compila, inicia la app con el perfil `e2e`, ejecuta los 4 escenarios, genera `e2e/build/reports/cucumber.html` y detiene la app. Consulta `e2e/README.md` para el detalle y el guion del video.
+
 ## Cobertura y mutaciones
 
 ```powershell

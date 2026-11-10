@@ -15,11 +15,15 @@
         <span>SistemaDeVentas</span>
     </a>
     <nav class="app-nav" aria-label="Navegación principal">
-        <a href="#/dashboard" data-route="dashboard">Dashboard</a>
-        <a href="#/productos" data-route="productos">Productos</a>
-        <a href="#/inventario" data-route="inventario">Inventario</a>
-        <a href="#/pedidos" data-route="pedidos">Pedidos</a>
+        <a href="#/dashboard" data-route="dashboard" data-testid="nav-dashboard">Dashboard</a>
+        <a href="#/productos" data-route="productos" data-testid="nav-productos">Productos</a>
+        <a href="#/inventario" data-route="inventario" data-testid="nav-inventario">Inventario</a>
+        <a href="#/pedidos" data-route="pedidos" data-testid="nav-pedidos">Pedidos</a>
     </nav>
+    <div class="app-user">
+        <span id="current-user" class="muted" data-testid="current-user"></span>
+        <button id="logout" class="button button--ghost button--sm" type="button" data-testid="logout">Salir</button>
+    </div>
 </header>
 
 <main id="app" class="app-main"></main>

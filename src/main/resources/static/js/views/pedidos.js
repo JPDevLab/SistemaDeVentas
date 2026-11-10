@@ -23,26 +23,30 @@ export async function render(container) {
         busqueda: "",
     };
 
-    const productSelect = h("select", { class: "input", "aria-label": "Producto a agregar" });
+    const productSelect = h("select", { class: "input", id: "pedido-producto", "aria-label": "Producto a agregar", "data-testid": "pedido-producto" });
     const cantidad = h("input", {
         class: "input input--sm",
+        id: "pedido-cantidad",
         type: "number",
         min: "1",
         step: "1",
         value: "1",
         "aria-label": "Cantidad",
+        "data-testid": "pedido-cantidad",
     });
-    const agregar = h("button", { class: "button button--ghost", type: "button" }, "Agregar");
+    const agregar = h("button", { class: "button button--ghost", type: "button", "data-testid": "pedido-agregar" }, "Agregar");
     const cartBody = h("tbody");
     const cliente = h("input", {
         class: "input",
+        id: "pedido-cliente",
         type: "text",
         maxlength: "150",
         placeholder: "Nombre del cliente",
+        "data-testid": "pedido-cliente",
     });
-    const totalValor = h("span", {}, formatCurrency(0));
-    const descuentoValor = h("span", {}, formatCurrency(0));
-    const finalValor = h("span", {}, formatCurrency(0));
+    const totalValor = h("span", { "data-testid": "pedido-total" }, formatCurrency(0));
+    const descuentoValor = h("span", { "data-testid": "pedido-descuento" }, formatCurrency(0));
+    const finalValor = h("span", { "data-testid": "pedido-total-final" }, formatCurrency(0));
     const descuentoRow = h(
         "div",
         { class: "summary__row summary__row--discount" },
@@ -50,13 +54,14 @@ export async function render(container) {
         descuentoValor,
     );
     const formError = h("p", { class: "form-error", role: "alert" });
-    const crear = h("button", { class: "button button--primary", type: "button", disabled: true }, "Crear pedido");
+    const crear = h("button", { class: "button button--primary", type: "button", disabled: true, "data-testid": "pedido-crear" }, "Crear pedido");
 
     const buscador = h("input", {
         class: "input",
         type: "search",
         placeholder: "Buscar por cliente o número de pedido…",
         "aria-label": "Buscar pedidos",
+        "data-testid": "pedido-buscar",
         on: {
             input: (event) => {
                 estado.busqueda = event.target.value.trim().toLowerCase();
@@ -94,7 +99,7 @@ export async function render(container) {
 
     const builder = h(
         "section",
-        { class: "card" },
+        { class: "card", "data-testid": "pedido-form" },
         h("div", { class: "card__header" }, h("h2", { class: "card__title" }, "Nuevo pedido")),
         h(
             "div",
@@ -373,6 +378,7 @@ export async function render(container) {
             acciones.append(h("button", {
                 class: "button button--ghost button--sm",
                 type: "button",
+                "data-testid": "pedido-detalle",
                 on: { click: () => verDetalle(pedido.id) },
             }, "Detalle"));
 
@@ -380,23 +386,30 @@ export async function render(container) {
                 acciones.append(h("button", {
                     class: "button button--ghost button--sm",
                     type: "button",
+                    "data-testid": "pedido-entregar",
                     on: { click: () => entregar(pedido) },
                 }, pedido.estado === "CREADO" ? "Pagar y entregar" : "Entregar"));
                 acciones.append(h("button", {
                     class: "button button--danger button--sm",
                     type: "button",
+                    "data-testid": "pedido-cancelar",
                     on: { click: () => cancelar(pedido) },
                 }, "Cancelar"));
             }
 
             pedidosBody.append(h(
                 "tr",
-                {},
+                {
+                    "data-testid": "pedido-row",
+                    "data-cliente": pedido.cliente,
+                    "data-pedido-id": pedido.id,
+                    "data-estado": pedido.estado,
+                },
                 h("td", {}, h("strong", {}, `#${pedido.id}`)),
                 h("td", { class: "muted" }, formatDate(pedido.fecha)),
                 h("td", {}, pedido.cliente),
-                h("td", { class: "table__num" }, formatCurrency(pedido.totalFinal)),
-                h("td", {}, estadoBadge(pedido.estado)),
+                h("td", { class: "table__num", "data-testid": "pedido-total-final-fila" }, formatCurrency(pedido.totalFinal)),
+                h("td", { "data-testid": "pedido-estado" }, estadoBadge(pedido.estado)),
                 h("td", {}, acciones),
             ));
         }

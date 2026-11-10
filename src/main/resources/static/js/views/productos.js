@@ -23,6 +23,7 @@ export async function render(container) {
         type: "search",
         placeholder: "Buscar por nombre o descripción…",
         "aria-label": "Buscar productos",
+        "data-testid": "producto-buscar",
         on: {
             input: (event) => {
                 estado.busqueda = event.target.value.trim().toLowerCase();
@@ -50,6 +51,7 @@ export async function render(container) {
     const nuevo = h("button", {
         class: "button button--primary",
         type: "button",
+        "data-testid": "producto-nuevo",
         on: { click: () => abrirFormulario() },
     }, "Nuevo producto");
 
@@ -139,11 +141,11 @@ export async function render(container) {
             const bajo = Number(producto.stock) <= 5;
             tableBody.append(h(
                 "tr",
-                {},
+                { "data-testid": "producto-row", "data-nombre": producto.nombre },
                 h("td", {}, h("strong", {}, producto.nombre)),
                 h("td", { class: "muted" }, producto.descripcion || "—"),
                 h("td", { class: "table__num" }, formatCurrency(producto.precio)),
-                h("td", { class: `table__num${bajo ? " table__num--low" : ""}` }, producto.stock),
+                h("td", { class: `table__num${bajo ? " table__num--low" : ""}`, "data-testid": "producto-stock" }, producto.stock),
                 h("td", {}, estadoBadge(producto.estado)),
                 h(
                     "td",
@@ -186,25 +188,31 @@ export async function render(container) {
         const editando = Boolean(producto);
         const modal = createModal(editando ? "Editar producto" : "Nuevo producto");
         const error = h("p", { class: "form-error", role: "alert" });
-        const guardar = h("button", { class: "button button--primary", type: "submit" }, editando ? "Guardar cambios" : "Crear producto");
+        const guardar = h("button", { class: "button button--primary", type: "submit", "data-testid": "producto-guardar" }, editando ? "Guardar cambios" : "Crear producto");
 
         const nombre = h("input", {
             class: "input",
+            id: "producto-nombre",
             name: "nombre",
+            "data-testid": "producto-nombre",
             required: true,
             maxlength: "120",
             value: producto?.nombre ?? "",
         });
         const descripcion = h("textarea", {
             class: "input",
+            id: "producto-descripcion",
             name: "descripcion",
+            "data-testid": "producto-descripcion",
             rows: "3",
             maxlength: "500",
             value: producto?.descripcion ?? "",
         });
         const precio = h("input", {
             class: "input",
+            id: "producto-precio",
             name: "precio",
+            "data-testid": "producto-precio",
             type: "number",
             min: "0",
             step: "0.01",
@@ -213,7 +221,9 @@ export async function render(container) {
         });
         const stock = h("input", {
             class: "input",
+            id: "producto-stock-input",
             name: "stock",
+            "data-testid": "producto-stock-input",
             type: "number",
             min: "0",
             step: "1",
@@ -223,14 +233,14 @@ export async function render(container) {
         });
         const estadoSelect = h(
             "select",
-            { class: "input", name: "estado" },
+            { class: "input", id: "producto-estado", name: "estado", "data-testid": "producto-estado" },
             ...ESTADOS.map((value) => h("option", { value }, value)),
         );
         estadoSelect.value = producto?.estado ?? "ACTIVO";
 
         const form = h(
             "form",
-            { class: "form", novalidate: true },
+            { class: "form", novalidate: true, "data-testid": "producto-form" },
             h(
                 "div",
                 { class: "form-grid" },

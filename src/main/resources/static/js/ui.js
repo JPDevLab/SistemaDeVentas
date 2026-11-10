@@ -115,7 +115,7 @@ export function showToast(message, type = "info") {
 }
 
 export function createModal(title) {
-    const dialog = h("dialog", { class: "modal" });
+    const dialog = h("dialog", { class: "modal", "data-testid": "modal" });
 
     function close() {
         if (dialog.open) {
@@ -176,11 +176,13 @@ export function confirmDialog(message, options = {}) {
             h("button", {
                 class: "button button--ghost",
                 type: "button",
+                "data-testid": "confirmar-cancelar",
                 on: { click: () => finish(false) },
             }, cancelLabel),
             h("button", {
                 class: `button ${danger ? "button--danger" : "button--primary"}`,
                 type: "button",
+                "data-testid": "confirmar-accion",
                 on: { click: () => finish(true) },
             }, confirmLabel),
         );
