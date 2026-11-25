@@ -77,7 +77,7 @@ El perfil carga `data-zap.sql` con productos y un pedido de ejemplo, desactiva l
 ## Pruebas
 
 ```powershell
-# Unitarias + integración (H2 en memoria) = 61 pruebas
+# Unitarias + integración (H2 en memoria) = 76 pruebas
 .\gradlew.bat clean test
 
 # Pruebas de aceptación (Cucumber)

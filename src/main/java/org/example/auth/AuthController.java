@@ -20,6 +20,9 @@ public class AuthController {
 
     public static final String SESSION_USER = "usuarioAutenticado";
 
+    private static final String AUTENTICADO_KEY = "autenticado";
+    private static final String USUARIO_KEY = "usuario";
+
     private final boolean enabled;
     private final String usuario;
     private final String clave;
@@ -33,10 +36,10 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody LoginRequest request, HttpSession session) {
+    public ResponseEntity<Map<String, Object>> login(@RequestBody LoginRequest request, HttpSession session) {
         if (!enabled) {
             session.setAttribute(SESSION_USER, "demo");
-            return ResponseEntity.ok(Map.of("autenticado", true, "usuario", "demo"));
+            return ResponseEntity.ok(Map.of(AUTENTICADO_KEY, true, USUARIO_KEY, "demo"));
         }
         if (request == null || !coincide(request.usuario(), usuario) || !coincide(request.contrasena(), clave)) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
@@ -46,23 +49,23 @@ public class AuthController {
                     ));
         }
         session.setAttribute(SESSION_USER, usuario);
-        return ResponseEntity.ok(Map.of("autenticado", true, "usuario", usuario));
+        return ResponseEntity.ok(Map.of(AUTENTICADO_KEY, true, USUARIO_KEY, usuario));
     }
 
     @GetMapping("/me")
-    public ResponseEntity<?> me(HttpSession session) {
+    public ResponseEntity<Map<String, Object>> me(HttpSession session) {
         Object autenticado = session.getAttribute(SESSION_USER);
         if (autenticado == null && !enabled) {
             return ResponseEntity.ok(Map.of(
-                    "autenticado", true,
-                    "usuario", "demo",
+                    AUTENTICADO_KEY, true,
+                    USUARIO_KEY, "demo",
                     "authDisabled", true
             ));
         }
         if (autenticado == null) {
-            return ResponseEntity.ok(Map.of("autenticado", false));
+            return ResponseEntity.ok(Map.of(AUTENTICADO_KEY, false));
         }
-        return ResponseEntity.ok(Map.of("autenticado", true, "usuario", autenticado));
+        return ResponseEntity.ok(Map.of(AUTENTICADO_KEY, true, USUARIO_KEY, autenticado));
     }
 
     @PostMapping("/logout")

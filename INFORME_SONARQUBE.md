@@ -1,5 +1,28 @@
 # Informe de Calidad de Software — SistemaDeVentas
 
+## 0. Actualización del 2026-11-25 (estado vigente)
+
+El análisis del 25 de octubre quedó obsoleto al añadir autenticación. El primer análisis sobre ese código falló con `Quality Gate ERROR` por `new_coverage = 77,8 %` (umbral 80 %) y `new_violations = 4` (cuatro code smells `java:S1452`/`java:S1192` en `AuthController.java`).
+
+Se corrigió el código y se repitió el análisis el 2026-11-25:
+
+| Métrica | Valor vigente |
+|---|---:|
+| Quality Gate | **OK** |
+| Cobertura combinada | **86,4 %** |
+| Cobertura de líneas | 89,2 % (440/493) |
+| Cobertura de ramas | 77,0 % (117/152) |
+| Bugs / Code smells / Duplicado / Deuda | 0 / 0 / 0,0 % / 0 min |
+| Violaciones nuevas | 0 |
+| Vulnerabilidades | 1 (menor, heredada, `kotlin:S6474`) |
+| Pruebas JUnit locales | 76, 0 fallos |
+
+Correcciones: `ResponseEntity<?>` → `ResponseEntity<Map<String, Object>>`, constantes para `"autenticado"` y `"usuario"`, y 15 pruebas en `AuthTest.java`. El comando avisó de falta de blame porque los cambios aún no están confirmados en Git; el Quality Gate se calculó correctamente.
+
+Las secciones 1 a 9 siguientes corresponden al análisis histórico del 25/10. La evidencia actualizada está en la carpeta de Descargas `Evidencias-SistemaDeVentas\06-sonarqube`.
+
+---
+
 ## 1. Información general
 
 | Campo | Valor |
@@ -310,9 +333,9 @@ Resultados verificados vía API de SonarQube:
 ## 9. Conclusiones
 
 - La API REST cumple los flujos funcionales del enunciado y las reglas de negocio, incluida la consistencia de inventario bajo concurrencia.
-- Las 61 pruebas automatizadas pasan sin fallos y cubren el 88.1 % de las líneas y el 72.7 % de las ramas del código principal.
+- Las 76 pruebas automatizadas pasan sin fallos y cubren el 89.2 % de las líneas y el 77.0 % de las ramas del código principal.
 - PITest confirma una fuerza de pruebas del 88 % sobre el código cubierto.
-- SonarQube reporta **Quality Gate OK**, con 0 bugs y 0 code smells y 84.6 % de cobertura; el único hallazgo abierto es una vulnerabilidad menor heredada sobre verificación de dependencias.
+- SonarQube, repetido el 2026-11-25, reporta **Quality Gate OK**, con 0 bugs, 0 code smells y 86.4 % de cobertura combinada; el único hallazgo abierto es una vulnerabilidad menor heredada sobre verificación de dependencias.
 - El token de SonarQube fue revocado y sustituido; el pipeline de Azure quedó corregido para dispararse en `master`, ejecutar las pruebas de mutación y publicar evidencias.
 - La entrega queda versionada en la rama `master` (API, frontend, pruebas y pipeline); resta registrar `SONAR_TOKEN` en Azure y completar la información de los integrantes.
 
