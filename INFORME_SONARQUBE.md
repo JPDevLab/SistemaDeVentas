@@ -17,7 +17,7 @@ Se corrigió el código y se repitió el análisis el 2026-11-25:
 | Vulnerabilidades | 1 (menor, heredada, `kotlin:S6474`) |
 | Pruebas JUnit locales | 76, 0 fallos |
 
-Correcciones: `ResponseEntity<?>` → `ResponseEntity<Map<String, Object>>`, constantes para `"autenticado"` y `"usuario"`, y 15 pruebas en `AuthTest.java`. El comando avisó de falta de blame porque los cambios aún no están confirmados en Git; el Quality Gate se calculó correctamente.
+Correcciones: `ResponseEntity<?>` → `ResponseEntity<Map<String, Object>>`, constantes para `"autenticado"` y `"usuario"`, y 15 pruebas en `AuthTest.java`. El primer análisis avisó de falta de blame porque los cambios aún no estaban confirmados. Tras publicar el commit `336481e` se repitió el análisis: el aviso desapareció y el Quality Gate permaneció en OK.
 
 Las secciones 1 a 9 siguientes corresponden al análisis histórico del 25/10. La evidencia actualizada está en la carpeta de Descargas `Evidencias-SistemaDeVentas\06-sonarqube`.
 
